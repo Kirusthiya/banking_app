@@ -170,7 +170,7 @@ def transaction_history_fun():
     if acc_no in user_accounts and authenticate(acc_no):
         print(f"== {acc_no} Transactions History ==")
         for t in user_accounts[acc_no]['transactions']:
-            print(f"{t[0]}          ₹{t[1]:.2f}          {t[2]}           {t[3]}")
+            print(f"{t[0]}           ₹{t[1]:.2f}           {t[2]}            {t[3]}")
     else:
         print("Wrong account no or password.")
 
@@ -200,6 +200,33 @@ def transfer_money_fun():
     else:
         print("Wrong account no or password.")
 
+def main_menu_ad_us_fun():
+    find_accounts_fun()
+    if not admin_accounts:
+        print("Welcome to Our Unicorn Mini Bank!")
+        create_admin_account_fun()
+
+    while True:
+        print("1. Admin Login")
+        print("2. User Login")
+        print("3. Exit")
+
+        choice=input("Choose 1 or 2 or 3:")
+        if choice == "1":
+              acc_no = input("Admin ID: ")
+              if acc_no in admin_accounts and authenticate(acc_no):
+                   admin_menu_fun(acc_no)
+              else:
+                  print("Invalid admin ID or password.")
+          
+        elif choice == "2":
+            main_menu_fun()
+        elif choice == "3":
+            print("Thank you. Good bye!")
+            break
+        else :
+            print("Invalid choice")    
+             
 
 # Admin menu 
 def admin_menu_fun(admin_id):
@@ -224,44 +251,34 @@ def admin_menu_fun(admin_id):
 
 # Main menu for the system
 def main_menu_fun():
-    find_accounts_fun()
-    if not admin_accounts:
-        print("Welcome to Our Unicorn Mini Bank!")
-        create_admin_account_fun()
-
+    
     while True:
         print("\n=== Mini Bank ===")
-        print("1. Admin Login")
-        print("2. Deposit Money")
-        print("3. Withdraw Money")
-        print("4. Balance Check")
-        print("5. Transfer Money")
-        print("6. View My Account")
-        print("7. Transaction History")
-        print("8. Exit")
-        choice = input("Choose (1-8): ")
+        print("1. Deposit Money")
+        print("2. Withdraw Money")
+        print("3. Balance Check")
+        print("4. Transfer Money")
+        print("5. View My Account")
+        print("6. Transaction History")
+        print("7. Exit")
+        choice = input("Choose (1-7): ")
+          
         if choice == '1':
-            acc_no = input("Admin ID: ")
-            if acc_no in admin_accounts and authenticate(acc_no):
-                admin_menu_fun(acc_no)
-            else:
-                print("Invalid admin ID or password.")
-        elif choice == '2':
             deposit_money_fun()
-        elif choice == '3':
+        elif choice == '2':
             withdraw_money_fun()
-        elif choice == '4':
+        elif choice == '3':
             check_balance_fun()
-        elif choice == '7':
-            transaction_history_fun()
-        elif choice == '5':
-            transfer_money_fun()
         elif choice == '6':
+            transaction_history_fun()
+        elif choice == '4':
+            transfer_money_fun()
+        elif choice == '5':
             view_my_account_fun()
-        elif choice == '8':
+        elif choice == '7':
             print("Thank you for using. Goodbye!")
             break
         else:
             print("Invalid choice")
 
-main_menu_fun()
+main_menu_ad_us_fun()
