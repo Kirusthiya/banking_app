@@ -1,0 +1,267 @@
+from datetime import datetime
+import os
+
+admin_accounts = {}
+user_accounts = {}
+next_account_number = 1001
+
+# Function to find data from text files
+def find_accounts_fun():
+    global admin_accounts, user_accounts, next_account_number
+    if os.path.exists("admin_detail.txt"):
+        with open("admin_detail.txt", "r") as f:
+            for line in f:
+                data = line.strip().split(',')
+                admin_accounts[data[0]] = {
+                    'name': data[1], 'password': data[2], 'balance': float(data[3]), 'transactions': [], 'role': 'admin'
+                }
+    if os.path.exists("user_detail.txt"):
+        with open("user_detail.txt", "r") as f:
+            for line in f:
+                data = line.strip().split(',')
+                user_accounts[data[0]] = {
+                    'name': data[1], 'password': data[2], 'balance': float(data[3]), 'transactions': [], 'role': 'user'
+                }
+    if os.path.exists("next_account_number.txt"):
+        with open("next_account_number.txt", "r") as f:
+            next_account_number = int(f.read().strip())
+
+# Function to save data to text files
+def save_accounts_fun():
+    with open("admin_detail.txt", "w") as f:
+        for acc, data in admin_accounts.items():
+            f.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
+    
+    with open("user_detail.txt", "w") as f:
+        for acc, data in user_accounts.items():
+            f.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
+    
+    with open("next_account_number.txt", "w") as f:
+        f.write(str(next_account_number))
+
+# Function to authenticate user or admin
+def authenticate(acc_no):
+    password = input("Enter your Password: ")
+    if acc_no.startswith("A"):
+        acc = admin_accounts.get(acc_no)
+    else:
+        acc = user_accounts.get(acc_no)
+    return acc and acc['password'] == password
+
+# Create first admin account
+def create_admin_account_fun():
+    print("=== Admin Login ===")
+    username = input("Create admin name: ")
+    password = input("Set password: ")
+    aid = f"A{len(admin_accounts) + 1:04d}"
+    admin_accounts[aid] = {'name': username, 'password': password, 'balance': 0, 'transactions': [], 'role': 'admin'}
+    save_accounts_fun()
+    print(f"Admin account created: {aid}")
+
+# Create another admin account
+def create_another_admin_fun():
+    name = input("New admin account: ")
+    password = input("Set a password: ")
+    aid = f"A{len(admin_accounts) + 1:04d}"
+    admin_accounts[aid] = {'name': name, 'password': password, 'balance': 0, 'transactions': [], 'role': 'admin'}
+    save_accounts_fun()
+    print(f"Admin account created: {aid}")
+
+# Create user account
+def create_user_account_fun():
+    global next_account_number
+    name = input("Enter account holder's name: ")
+    password = input("Create a password: ")
+    while True:
+        try:
+            amount = float(input("Initial deposit: "))
+            if amount < 0:
+                print("Please enter positive amount")
+            else:
+                break
+        except:
+            print("Invalid amount")
+    acc_no = str(next_account_number)
+    next_account_number += 1
+    user_accounts[acc_no] = {
+        'name': name, 'password': password, 'balance': amount,
+        'transactions': [("Initial Deposit", amount, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "New account")], 'role': 'user'
+    }
+    save_accounts_fun()
+    print(f"User account created: {acc_no}")
+
+# View all accounts function (admin use)
+def view_all_accounts_fun():
+    print("\n=== Admin Accounts ===")
+    for acc, data in admin_accounts.items():
+        print(f"{acc}  {data['name']}  ₹{data['balance']:.2f}  {data['role']}")
+    
+    print("\n=== User Accounts ===")
+    for acc, data in user_accounts.items():
+        print(f"{acc}  {data['name']}  ₹{data['balance']:.2f}  {data['role']}")
+
+# View account details (user)
+def view_my_account_fun():
+    acc_no = input("Enter your account no: ")
+    if acc_no in user_accounts and authenticate(acc_no):
+        acc = user_accounts[acc_no]
+        print("----------------------------")
+        print("      Full Details          ")
+        print("----------------------------")
+        print(f"Account Number: {acc_no}")
+        print(f"Name: {acc['name']}")
+        print(f"Balance: ₹{acc['balance']:.2f}")
+        print(f"Role: {acc['role']}")
+        print("----------------------------")
+    else:
+        print("Wrong account no or password.")
+
+# Deposit money function
+def deposit_money_fun():
+    acc_no = input("Enter your account no: ")
+    if acc_no in user_accounts and authenticate(acc_no):
+        try:
+            amount = float(input("Amount to deposit: "))
+            if amount <= 0:
+                print("Enter a positive amount")
+                return
+            desc = input("Description: ")
+            time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            user_accounts[acc_no]['balance'] += amount
+            user_accounts[acc_no]['transactions'].append(("Deposit", amount, time, desc))
+            save_accounts_fun()
+            print("Deposit done.")
+        except:
+            print("Invalid amount.")
+    else:
+        print("Wrong account no or password.")
+
+# Withdraw money function
+def withdraw_money_fun():
+    acc_no = input("Enter your account no: ")
+    if acc_no in user_accounts and authenticate(acc_no):
+        try:
+            amt = float(input("Withdraw amount: "))
+            if amt <= 0 or amt > user_accounts[acc_no]['balance']:
+                print("Invalid or insufficient funds.")
+                return
+            desc = input("Description: ")
+            time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            user_accounts[acc_no]['balance'] -= amt
+            user_accounts[acc_no]['transactions'].append(("Withdraw", amt, time, desc))
+            save_accounts_fun()
+            print("Withdraw done.")
+        except:
+            print("Invalid input.")
+    else:
+        print("Wrong account no or password.")
+
+# Check balance function
+def check_balance_fun():
+    acc_no = input("Enter your account no: ")
+    if acc_no in user_accounts and authenticate(acc_no):
+        print(f"Balance: ₹{user_accounts[acc_no]['balance']:.2f}")
+    else:
+        print("Wrong account no or password.")
+
+# Transaction history function
+def transaction_history_fun():
+    acc_no = input("Enter your account no: ")
+    if acc_no in user_accounts and authenticate(acc_no):
+        print(f"== {acc_no} Transactions History ==")
+        for t in user_accounts[acc_no]['transactions']:
+            print(f"{t[0]}          ₹{t[1]:.2f}          {t[2]}           {t[3]}")
+    else:
+        print("Wrong account no or password.")
+
+# Transfer money function between users
+def transfer_money_fun():
+    from_acc = input("Enter your account no: ")
+    if from_acc in user_accounts and authenticate(from_acc):
+        to_acc = input("To account no: ")
+        if to_acc in user_accounts:
+            try:
+                amt = float(input("Transfer amount: "))
+                if amt <= 0 or user_accounts[from_acc]['balance'] < amt:
+                    print("Invalid or insufficient funds.")
+                    return
+                desc = input("Description: ")
+                time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                user_accounts[from_acc]['balance'] -= amt
+                user_accounts[to_acc]['balance'] += amt
+                user_accounts[from_acc]['transactions'].append(("Transfer Sent", amt, time, desc))
+                user_accounts[to_acc]['transactions'].append(("Transfer Received", amt, time, desc))
+                save_accounts_fun()
+                print("Transfer done.")
+            except:
+                print("Invalid amount.")
+        else:
+            print("Receiver account not found.")
+    else:
+        print("Wrong account no or password.")
+
+
+# Admin menu 
+def admin_menu_fun(admin_id):
+    print(f"Welcome {admin_accounts[admin_id]['name']}!")
+    while True:
+        print("\n=== Admin Menu ===")
+        print("1. Create User Account")
+        print("2. Create Admin ID")
+        print("3. View All Accounts")
+        print("4. Exit")
+        choice = input("Choose (1-4): ")
+        if choice == '1':
+            create_user_account_fun()
+        elif choice == '2':
+            create_another_admin_fun()
+        elif choice == '3':
+            view_all_accounts_fun()
+        elif choice == '4':
+            break
+        else:
+            print("Invalid Choice")
+
+# Main menu for the system
+def main_menu_fun():
+    find_accounts_fun()
+    if not admin_accounts:
+        print("Welcome to Our Unicorn Mini Bank!")
+        create_admin_account_fun()
+
+    while True:
+        print("\n=== Mini Bank ===")
+        print("1. Admin Login")
+        print("2. Deposit Money")
+        print("3. Withdraw Money")
+        print("4. Balance Check")
+        print("5. Transfer Money")
+        print("6. View My Account")
+        print("7. Transaction History")
+        print("8. Exit")
+        choice = input("Choose (1-8): ")
+        if choice == '1':
+            acc_no = input("Admin ID: ")
+            if acc_no in admin_accounts and authenticate(acc_no):
+                admin_menu_fun(acc_no)
+            else:
+                print("Invalid admin ID or password.")
+        elif choice == '2':
+            deposit_money_fun()
+        elif choice == '3':
+            withdraw_money_fun()
+        elif choice == '4':
+            check_balance_fun()
+        elif choice == '7':
+            transaction_history_fun()
+        elif choice == '5':
+            transfer_money_fun()
+        elif choice == '6':
+            view_my_account_fun()
+        elif choice == '8':
+            print("Thank you for using. Goodbye!")
+            break
+        else:
+            print("Invalid choice")
+
+main_menu_fun()
