@@ -3,11 +3,10 @@ import os
 
 admin_accounts = {}
 user_accounts = {}
-next_account_number = 1001
 
 # Function to find data from text files
 def find_accounts_fun():
-    global admin_accounts, user_accounts, next_account_number
+    global admin_accounts, user_accounts
     if os.path.exists("admin_detail.txt"):
         with open("admin_detail.txt", "r") as f:
             for line in f:
@@ -22,9 +21,6 @@ def find_accounts_fun():
                 user_accounts[data[0]] = {
                     'name': data[1], 'password': data[2], 'balance': float(data[3]), 'transactions': [], 'role': 'user'
                 }
-    if os.path.exists("next_account_number.txt"):
-        with open("next_account_number.txt", "r") as f:
-            next_account_number = int(f.read().strip())
 
 # Function to save data to text files
 def save_accounts_fun():
@@ -35,10 +31,7 @@ def save_accounts_fun():
     with open("user_detail.txt", "w") as f:
         for acc, data in user_accounts.items():
             f.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
-    
-    with open("next_account_number.txt", "w") as f:
-        f.write(str(next_account_number))
-
+ 
 # Function to authenticate user or admin
 def authenticate(acc_no):
     password = input("Enter your Password: ")
@@ -69,8 +62,7 @@ def create_another_admin_fun():
 
 # Create user account
 def create_user_account_fun():
-    global next_account_number
-    name = input("Enter account holder's name: ")
+    name = input("Enter account hol0der's name: ")
     password = input("Create a password: ")
     while True:
         try:
@@ -81,14 +73,13 @@ def create_user_account_fun():
                 break
         except:
             print("Invalid amount")
-    acc_no = str(next_account_number)
-    next_account_number += 1
-    user_accounts[acc_no] = {
+    u_no = f"U{len(user_accounts) + 1:04d}"        
+    user_accounts[u_no] = {
         'name': name, 'password': password, 'balance': amount,
         'transactions': [("Initial Deposit", amount, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "New account")], 'role': 'user'
     }
     save_accounts_fun()
-    print(f"User account created: {acc_no}")
+    print(f"User account created: {u_no}")
 
 # View all accounts function (admin use)
 def view_all_accounts_fun():
@@ -170,11 +161,11 @@ def transaction_history_fun():
     if acc_no in user_accounts and authenticate(acc_no):
         print(f"== {acc_no} Transactions History ==")
         for t in user_accounts[acc_no]['transactions']:
-            print(f"{t[0]}           ₹{t[1]:.2f}           {t[2]}            {t[3]}")
+            print(f"{t[0]}                ₹{t[1]:.2f}                 {t[2]}                {t[3]}")
     else:
         print("Wrong account no or password.")
 
-# Transfer money function between users
+# Transfer money function 
 def transfer_money_fun():
     from_acc = input("Enter your account no: ")
     if from_acc in user_accounts and authenticate(from_acc):
@@ -199,34 +190,10 @@ def transfer_money_fun():
             print("Receiver account not found.")
     else:
         print("Wrong account no or password.")
-#Main menu Start process
-def main_menu_ad_us_fun():
-    find_accounts_fun()
-    if not admin_accounts:
-        print("Welcome to Our Unicorn Mini Bank!")
-        create_admin_account_fun()
 
-    while True:
-        print("1. Admin Login")
-        print("2. User Login")
-        print("3. Exit")
+#===================================================================Back function end=================================================================
 
-        choice=input("Choose 1 or 2 or 3:")
-        if choice == "1":
-              acc_no = input("Admin ID: ")
-              if acc_no in admin_accounts and authenticate(acc_no):
-                   admin_menu_fun(acc_no)
-              else:
-                  print("Invalid admin ID or password.")
-          
-        elif choice == "2":
-            main_menu_fun()
-        elif choice == "3":
-            print("Thank you. Good bye!")
-            break
-        else :
-            print("Invalid choice")    
-             
+#=====================================================================USER USE START==================================================================
 
 # Admin menu 
 def admin_menu_fun(admin_id):
@@ -237,7 +204,9 @@ def admin_menu_fun(admin_id):
         print("2. Create Admin ID")
         print("3. View All Accounts")
         print("4. Exit")
+
         choice = input("Choose (1-4): ")
+
         if choice == '1':
             create_user_account_fun()
         elif choice == '2':
@@ -250,8 +219,8 @@ def admin_menu_fun(admin_id):
             print("Invalid Choice")
 
 # Main menu for the system
-def main_menu_fun():
-    
+def user_menu_fun(user_id):
+    print(f"Welcome {user_accounts[user_id]['name']}!")
     while True:
         print("\n=== Mini Bank ===")
         print("1. Deposit Money")
@@ -261,6 +230,7 @@ def main_menu_fun():
         print("5. View My Account")
         print("6. Transaction History")
         print("7. Exit")
+
         choice = input("Choose (1-7): ")
           
         if choice == '1':
@@ -269,16 +239,52 @@ def main_menu_fun():
             withdraw_money_fun()
         elif choice == '3':
             check_balance_fun()
-        elif choice == '6':
-            transaction_history_fun()
         elif choice == '4':
             transfer_money_fun()
         elif choice == '5':
-            view_my_account_fun()
+            view_my_account_fun()            
+        elif choice == '6':
+            transaction_history_fun()
         elif choice == '7':
             print("Thank you for using. Goodbye!")
             break
         else:
             print("Invalid choice")
 
-main_menu_ad_us_fun()
+#Main menu 
+def main_menu_fun():
+    find_accounts_fun()
+    if not admin_accounts:
+        print("Welcome to Our Unicorn Mini Bank!")
+        create_admin_account_fun()
+
+    while True:
+        print("1. Admin Login")
+        print("2. User Login")
+        print("3. Exit")
+
+        choice=input("Choose 1 or 2 or 3: ")
+
+        if choice == "1":
+              acc_no = input("Admin ID: ")
+              if acc_no in admin_accounts and authenticate(acc_no):
+                   admin_menu_fun(acc_no)
+              else:
+                  print("Invalid admin ID or password.")
+          
+        elif choice == "2":
+              uac_no = input("User Account No: ")
+              if uac_no in admin_accounts and authenticate(uac_no):
+                   user_menu_fun(uac_no)
+              else:
+                  print("Invalid admin ID or password.")
+          
+            
+        elif choice == "3":
+            print("Thank you. Goodbye!")
+            break
+        else :
+            print("Invalid choice")    
+                         
+
+main_menu_fun()
