@@ -91,11 +91,11 @@ def create_user_account_fun():
 def view_all_accounts_fun():
     print("\n=== Admin Accounts ===")
     for acc, data in admin_accounts.items():
-        print(f"{acc}  {data['name']}  ₹{data['balance']:.2f}  {data['role']}")
+        print(f"{acc}  {data['name']}  LKR {data['balance']:.2f}  {data['role']}")
     
     print("\n=== User Accounts ===")
     for acc, data in user_accounts.items():
-        print(f"{acc}  {data['name']}  ₹{data['balance']:.2f}  {data['role']}")
+        print(f"{acc}  {data['name']}  LKR {data['balance']:.2f}  {data['role']}")
 
 
 # View account details (user)
@@ -108,60 +108,60 @@ def view_my_account_fun():
         print("----------------------------")
         print(f"Account Number: {acc_no}")
         print(f"Name: {acc['name']}")
-        print(f"Balance: ₹{acc['balance']:.2f}")
+        print(f"Balance: LKR {acc['balance']:.2f}")
         print(f"Role: {acc['role']}")
         print("----------------------------")
     else:
         print("Wrong account no or password.")
 
+#Amount check function
+def amount_input_fun(action="Process"):
+    acc_no = input("Enter your account no: ")
+    if acc_no in user_accounts and authenticate(acc_no):
+        while True:
+            try:
+                amount = float(input("Amount to deposit: "))
+                if amount <= 0:
+                    print("Enter a positive amount")
+                else:
+                    return acc_no ,amount
+            except:
+                print("Invalid amount.")
+    else:
+        print("Wrong account no or password.")     
+        return None,None       
 
 # Deposit money function
 def deposit_money_fun():
-    acc_no = input("Enter your account no: ")
-    if acc_no in user_accounts and authenticate(acc_no):
-        try:
-            amount = float(input("Amount to deposit: "))
-            if amount <= 0:
-                print("Enter a positive amount")
-                return
+        acc_no, amount=amount_input_fun("Deposit")
+        if acc_no:
             desc = input("Description for deposit: ")
             time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             user_accounts[acc_no]['balance'] += amount
             user_accounts[acc_no]['transactions'].append(("Deposit", amount, time, desc))
             save_accounts_fun()
             print("Deposit done.")
-        except:
-            print("Invalid amount.")
-    else:
-        print("Wrong account no or password.")
+        else:pass    
 
 
 # Withdraw money function
 def withdraw_money_fun():
-    acc_no = input("Enter your account no: ")
-    if acc_no in user_accounts and authenticate(acc_no):
-        try:
-            amt = float(input("Withdraw amount: "))
-            if amt <= 0 or amt > user_accounts[acc_no]['balance']:
-                print("Invalid or insufficient funds.")
-                return
+        acc_no,amount=amount_input_fun("Withdraw")
+        if acc_no:
             desc = input("Description for withdraw: ")
             time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user_accounts[acc_no]['balance'] -= amt
-            user_accounts[acc_no]['transactions'].append(("Withdraw", amt, time, desc))
+            user_accounts[acc_no]['balance'] -= amount
+            user_accounts[acc_no]['transactions'].append(("Withdraw", amount, time, desc))
             save_accounts_fun()
             print("Withdraw done.")
-        except:
-            print("Invalid input.")
-    else:
-        print("Wrong account no or password.")
-
-
+        
+        else:pass
+      
 # Check balance function
 def check_balance_fun():
     acc_no = input("Enter your account no: ")
     if acc_no in user_accounts and authenticate(acc_no):
-        print(f"Balance: ₹{user_accounts[acc_no]['balance']:.2f}")
+        print(f"Balance: LKR {user_accounts[acc_no]['balance']:.2f}")
     else:
         print("Wrong account no or password.")
 
@@ -172,7 +172,7 @@ def transaction_history_fun():
     if acc_no in user_accounts and authenticate(acc_no):
         print(f"== {acc_no} Transactions History ==")
         for t in user_accounts[acc_no]['transactions']:
-            print(f"{t[0]} ₹{t[1]:.2f}  {t[2]}  {t[3]}\t")
+            print(f"{t[0]} LKR {t[1]:.2f}  {t[2]}  {t[3]}\t")
     else:
         print("Wrong account no or password.")
 
@@ -192,8 +192,8 @@ def transfer_money_fun():
                 time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 user_accounts[from_acc]['balance'] -= amt
                 user_accounts[to_acc]['balance'] += amt
-                user_accounts[from_acc]['transactions'].append(("Transfer Sent", amt, time, desc))
-                user_accounts[to_acc]['transactions'].append(("Transfer Received", amt, time, desc))
+                user_accounts[from_acc]['transactions'].append(("Transfer ", amt, time, desc))
+                user_accounts[to_acc]['transactions'].append(("Received", amt, time, desc))
                 save_accounts_fun()
                 print("Transfer done.")
             except:
@@ -308,6 +308,6 @@ def main_menu_fun():
             break
         else :
             print("Invalid choice")    
-                         
+
 
 main_menu_fun()
