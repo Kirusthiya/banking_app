@@ -62,7 +62,7 @@ def create_another_admin_fun():
 
 # Create user account
 def create_user_account_fun():
-    name = input("Enter account hol0der's name: ")
+    name = input("Enter account holoder's name: ")
     password = input("Create a password: ")
     while True:
         try:
@@ -161,7 +161,7 @@ def transaction_history_fun():
     if acc_no in user_accounts and authenticate(acc_no):
         print(f"== {acc_no} Transactions History ==")
         for t in user_accounts[acc_no]['transactions']:
-            print(f"{t[0]}                ₹{t[1]:.2f}                 {t[2]}                {t[3]}")
+            print(f"{t[0]} ₹{t[1]:.2f}  {t[2]}  {t[3]}\t")
     else:
         print("Wrong account no or password.")
 
@@ -274,7 +274,7 @@ def main_menu_fun():
           
         elif choice == "2":
               uac_no = input("User Account No: ")
-              if uac_no in admin_accounts and authenticate(uac_no):
+              if uac_no in user_accounts and authenticate(uac_no):
                    user_menu_fun(uac_no)
               else:
                   print("Invalid admin ID or password.")
