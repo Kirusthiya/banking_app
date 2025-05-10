@@ -8,15 +8,15 @@ user_accounts = {}
 def find_accounts_fun():
     global admin_accounts, user_accounts
     if os.path.exists("admin_detail.txt"):
-        with open("admin_detail.txt", "r") as f:
-            for line in f:
+        with open("admin_detail.txt", "r") as file:
+            for line in file:
                 data = line.strip().split(',')
                 admin_accounts[data[0]] = {
                     'name': data[1], 'password': data[2], 'balance': float(data[3]), 'transactions': [], 'role': 'admin'
                 }
     if os.path.exists("user_detail.txt"):
-        with open("user_detail.txt", "r") as f:
-            for line in f:
+        with open("user_detail.txt", "r") as file:
+            for line in file:
                 data = line.strip().split(',')
                 user_accounts[data[0]] = {
                     'name': data[1], 'password': data[2], 'balance': float(data[3]), 'transactions': [], 'role': 'user'
@@ -24,13 +24,13 @@ def find_accounts_fun():
 
 # Function to save data to text files
 def save_accounts_fun():
-    with open("admin_detail.txt", "w") as f:
+    with open("admin_detail.txt", "w") as file:
         for acc, data in admin_accounts.items():
-            f.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
+            file.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
     
-    with open("user_detail.txt", "w") as f:
+    with open("user_detail.txt", "w") as file:
         for acc, data in user_accounts.items():
-            f.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
+            file.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
  
 # Function to authenticate user or admin
 def authenticate(acc_no):
