@@ -3,10 +3,11 @@ import os
 
 admin_accounts = {}
 user_accounts = {}
+other_datas={}
 
 # Function to find data from text files
 def find_accounts_fun():
-    global admin_accounts, user_accounts
+    global admin_accounts, user_accounts,other_datas
     if os.path.exists("admin_detail.txt"):
         with open("admin_detail.txt", "r") as file:
             for line in file:
@@ -22,6 +23,13 @@ def find_accounts_fun():
                     'name': data[1], 'password': data[2], 'balance': float(data[3]), 'transactions': [], 'role': 'user'
                 }
 
+    if os.path.exists("other_details.txt") :
+        with open("other_details.txt" ,"r") as file:
+            for line in file:
+                data = line.strip().split(',')  
+                other_datas[data[0]]={
+                    'email':data[1] , 'mobile':data[2] ,'address':data[3]
+                }
 
 # Function to save data to text files
 def save_accounts_fun():
@@ -33,9 +41,14 @@ def save_accounts_fun():
         for acc, data in user_accounts.items():
             file.write(f"{acc},{data['name']},{data['password']},{data['balance']}\n")
  
+    with open("other_details.txt", "w") as file:
+        for acc, data in other_datas.items():
+            file.write(f"{acc},{data['email']},{data['mobile']},{data['address']}\n")
+            
+ 
 
 # Function to authenticate user or admin
-def authenticate(acc_no):
+def pin_input(acc_no):
     password = input("Enter your Password: ")
     if acc_no.startswith("A"):
         acc = admin_accounts.get(acc_no)
@@ -44,13 +57,33 @@ def authenticate(acc_no):
     return acc and acc['password'] == password
 
 
+
 # Create first admin account
 def create_admin_account_fun():
     print("=== Admin Login ===")
     username = input("Create admin name: ")
     password = input("Set password: ")
+    email=input("Enter your Email-address: ")
+    while True:
+        try:
+            t_no_str=input("Enter your 10-degit mobile number start with 07: ")
+            if t_no_str.isdigit() and len(t_no_str)==10 and t_no_str.startswith("07") :
+                t_no=int(t_no_str)
+                break
+            else :
+                print("Enter a 10-digit numbers starting with 07.")
+        except ValueError:
+            print("Numbers only!")           
+    address=input("Enter your current address: ")
+  
     a_id = f"A{len(admin_accounts) + 1:04d}"
     admin_accounts[a_id] = {'name': username, 'password': password, 'balance': 0, 'transactions': [], 'role': 'admin'}
+    other_datas[a_id]={
+        'email':email, 
+         'mobile':t_no,
+         'address':address
+         
+    }
     save_accounts_fun()
     print(f"Admin account created: {a_id}")
 
@@ -59,16 +92,46 @@ def create_admin_account_fun():
 def create_another_admin_fun():
     name = input("New admin account name: ")
     password = input("Set a password: ")
+    email=input("Enter your Email-address: ")
+    while True:
+        try:
+            t_no_str=input("Enter your 10-degit mobile number start with 07: ")
+            if t_no_str.isdigit() and len(t_no_str)==10 and t_no_str.startswith("07") :
+                t_no=int(t_no_str)
+                break
+            else :
+                print("Enter a 10-digit numbers starting with 07.")
+        except ValueError:
+            print("Numbers only!")           
+    address=input("Enter your current address: ")
     a_id = f"A{len(admin_accounts) + 1:04d}"
     admin_accounts[a_id] = {'name': name, 'password': password, 'balance': 0, 'transactions': [], 'role': 'admin'}
+    other_datas[a_id]={
+        'email':email, 
+         'mobile':t_no,
+         'address':address
+    }
     save_accounts_fun()
     print(f"Admin account created: {a_id}")
 
 
 # Create user account
 def create_user_account_fun():
-    name = input("Enter account holoder's name: ")
+    name = input("Enter account hloder's name: ")
     password = input("Create a password: ")
+    email=input("Enter your Email-address: ")
+    while True:
+        try:
+            t_no_str=input("Enter your 10-degit mobile number start with 07: ")
+            if t_no_str.isdigit() and len(t_no_str)==10 and t_no_str.startswith("07") :
+                t_no=int(t_no_str)
+                break
+            else :
+                print("Enter a 10-digit numbers starting with 07.")
+        except ValueError:
+            print("Numbers only!")           
+    address=input("Enter your current address: ")
+  
     while True:
         try:
             amount = float(input("Initial deposit: "))
@@ -78,10 +141,16 @@ def create_user_account_fun():
                 break
         except:
             print("Invalid amount")
+            
     u_no = f"U{len(user_accounts) + 1:04d}"        
     user_accounts[u_no] = {
         'name': name, 'password': password, 'balance': amount,
         'transactions': [("Initial Deposit", amount, datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "New account")], 'role': 'user'
+    }
+    other_datas[u_no]={
+        'email':email, 
+         'mobile':t_no,
+         'address':address
     }
     save_accounts_fun()
     print(f"User account created: {u_no}")
@@ -101,7 +170,7 @@ def view_all_accounts_fun():
 # View account details (user)
 def view_my_account_fun():
     acc_no = input("Enter your account no: ")
-    if acc_no in user_accounts and authenticate(acc_no):
+    if acc_no in user_accounts and pin_input(acc_no):
         acc = user_accounts[acc_no]
         print("----------------------------")
         print("      Full Details          ")
@@ -117,7 +186,7 @@ def view_my_account_fun():
 #Amount check function
 def amount_input_fun(action="Process"):
     acc_no = input("Enter your account no: ")
-    if acc_no in user_accounts and authenticate(acc_no):
+    if acc_no in user_accounts and pin_input(acc_no):
         while True:
             try:
                 amount = float(input("Amount to deposit: "))
@@ -160,7 +229,7 @@ def withdraw_money_fun():
 # Check balance function
 def check_balance_fun():
     acc_no = input("Enter your account no: ")
-    if acc_no in user_accounts and authenticate(acc_no):
+    if acc_no in user_accounts and pin_input(acc_no):
         print(f"Balance: LKR {user_accounts[acc_no]['balance']:.2f}")
     else:
         print("Wrong account no or password.")
@@ -169,7 +238,7 @@ def check_balance_fun():
 # Transaction history function
 def transaction_history_fun():
     acc_no = input("Enter your account no: ")
-    if acc_no in user_accounts and authenticate(acc_no):
+    if acc_no in user_accounts and pin_input(acc_no):
         print(f"== {acc_no} Transactions History ==")
         for t in user_accounts[acc_no]['transactions']:
             print(f"{t[0]} LKR {t[1]:.2f}  {t[2]}  {t[3]}\t")
@@ -180,7 +249,7 @@ def transaction_history_fun():
 # Transfer money function 
 def transfer_money_fun():
     from_acc = input("Enter your account no: ")
-    if from_acc in user_accounts and authenticate(from_acc):
+    if from_acc in user_accounts and pin_input(from_acc):
         to_acc = input("To account no: ")
         if to_acc in user_accounts:
             try:
@@ -290,14 +359,14 @@ def main_menu_fun():
 
         if choice == "1":
               acc_no = input("Admin ID: ")
-              if acc_no in admin_accounts and authenticate(acc_no):
+              if acc_no in admin_accounts and pin_input(acc_no):
                    admin_menu_fun(acc_no)
               else:
                   print("Invalid admin ID or password.")
           
         elif choice == "2":
               uac_no = input("User Account No: ")
-              if uac_no in user_accounts and authenticate(uac_no):
+              if uac_no in user_accounts and pin_input(uac_no):
                    user_menu_fun(uac_no)
               else:
                   print("Invalid admin ID or password.")
@@ -307,7 +376,7 @@ def main_menu_fun():
             print("Thank you. Goodbye!")
             break
         else :
-            print("Invalid choice")    
+            print("Invalid choice")  
 
 
 main_menu_fun()
