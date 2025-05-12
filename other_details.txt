@@ -1,4 +1,0 @@
-A0001,Kiru@gmail.com,763891103,
-U0001,Diya@gmail.com,763891103,urumpirai
-U0002,Abinu@gmail.com,769586567,kopay
-A0002,Abinu@gmail.com,704828003,jaffna
