@@ -1,2 +1,0 @@
-A0001,Kirusthiya,1230,0.0
-A0002,Abinayan,1230,0.0
