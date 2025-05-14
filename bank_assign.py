@@ -183,16 +183,20 @@ def deposit_money_fun():
 
 # Withdraw money function
 def withdraw_money_fun():
-        acc_no,amount=amount_input_fun("Withdraw")
-        if acc_no:
-            desc = input("Description for withdraw: ")
-            time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            user_accounts[acc_no]['balance'] -= amount
-            user_accounts[acc_no]['transactions'].append(("Withdraw", amount, time, desc))
-            save_accounts_fun()
-            print("Withdraw done.")
-        else:pass
-      
+        while True :
+            acc_no,amount=amount_input_fun("Withdraw")
+            if acc_no:
+                if amount< user_accounts[acc_no]['balance'] :
+                    desc = input("Description for withdraw: ")
+                    time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    user_accounts[acc_no]['balance'] -= amount
+                    user_accounts[acc_no]['transactions'].append(("Withdraw", amount, time, desc))
+                    save_accounts_fun()
+                    print("Withdraw done.")
+                    break
+                else: print("Insufficient balance!")    
+            else:print("Account not found")
+        
 # Check balance function
 def check_balance_fun():
     acc_no = input("Enter your account no: ")
