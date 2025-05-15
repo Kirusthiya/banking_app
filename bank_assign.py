@@ -28,7 +28,7 @@ def find_accounts_fun():
             for line in file:
                 data = line.strip().split(',')  
                 other_datas[data[0]]={
-                    'email':data[1] , 'mobile':data[2] ,'address':data[3]
+                    'email':data[1] , 'mobile':data[2] ,'address':data[3],'role':data[4]
                 }
 
 # Function to save data to text files
