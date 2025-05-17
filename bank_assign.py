@@ -59,8 +59,14 @@ def pin_input_fun(acc_no):
 def create_admin_account_fun():
     print("=== Admin Login ===")
     name = input("Create admin name: ")
-    password = input("Set password: ")
-    email=input("Enter your Email-address: ")
+    while True:
+        password = input("Set password: ")
+        if len(password)>=6 and len(password)<9:
+            email=input("Enter your Email-address: ")
+            break
+        else:
+            print("Password shoud have maximum 8 charactors.")
+   
     while True:
         try:
             t_no_str=input("Enter your 10-degit mobile number start with 07: ")
@@ -88,8 +94,13 @@ def create_admin_account_fun():
 # Create user account
 def create_user_account_fun():
     name = input("Enter account hloder's name: ")
-    password = input("Create a password: ")
-    email=input("Enter your Email-address: ")
+    while True:
+        password = input("Create a password: ")
+        if len(password)>=6 and len(password)<9:
+            email=input("Enter your Email-address: ")
+            break
+        else:
+            print("Password shoud have maximum 8 charactors")
     while True:
         try:
             t_no_str=input("Enter your 10-degit mobile number start with 07: ")
@@ -125,6 +136,21 @@ def create_user_account_fun():
     }
     save_accounts_fun()
     print(f"User account created: {u_no}")
+
+#All customer list    
+def customer_list():
+    for acc,data in user_accounts.items():
+        print(f"{acc}:{data['name']}")
+
+#check admin status
+def check_status():
+    acc=input("Enter Your Account no: ")
+    if acc in admin_accounts:
+        print(f"you are an Admin")
+    elif acc in user_accounts:
+        print(f"You are a Customer")
+    else:
+        print("Account no not found")    
 
 # View all accounts function (admin use)
 def view_all_accounts_fun():
@@ -308,9 +334,10 @@ def admin_menu_fun(admin_id):
         print("5. Withdraw Money")
         print("6. Transfer Money")
         print("7. Change Password")
-        print("8. Exit")
+        print("8. check customer list")
+        print("9. Exit")
 
-        choice = input("Choose (1-8): ")
+        choice = input("Choose (1-9): ")
 
         if choice == '1':
             create_user_account_fun()
@@ -325,8 +352,10 @@ def admin_menu_fun(admin_id):
         elif choice == "6":
             transfer_money_fun()   
         elif choice == "7":
-            change_password_fun()             
-        elif choice == '8':
+            change_password_fun()   
+        elif choice == "8":
+            customer_list()            
+        elif choice == '9':
             break
         else:
             print("Invalid Choice")
@@ -378,9 +407,10 @@ def main_menu_fun():
         print("\n--- MAIN MENU ---")
         print("1. Admin Login")
         print("2. User Login")
-        print("3. Exit")
+        print("3. Check Status")
+        print("4. Exit")
 
-        choice=input("Choose 1 or 2 or 3: ")
+        choice=input("Choose (1-4): ")
 
         if choice == "1":
               acc_no = input("Admin ID: ")
@@ -395,8 +425,10 @@ def main_menu_fun():
                    user_menu_fun(uac_no)
               else:
                   print("Invalid admin ID or password.")
-            
         elif choice == "3":
+            check_status()          
+            
+        elif choice == "4":
             print("Thank you. Goodbye!")
             break
         else :
